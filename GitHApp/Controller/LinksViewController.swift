@@ -103,9 +103,10 @@ extension LinksViewController: UITableViewDelegate, UITableViewDataSource, UISea
     private func setupSearchBar() {
 
         definesPresentationContext = true
-        navigationItem.searchController = self.searchController
+        navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = true
         searchController.searchBar.delegate = self
+        searchController.obscuresBackgroundDuringPresentation = false
         let textFieldInsideSearchBar = searchController.searchBar.value(forKey: "searchField") as? UITextField
         textFieldInsideSearchBar?.textColor = .black
         textFieldInsideSearchBar?.placeholder = "type company, e.g. octokit"
