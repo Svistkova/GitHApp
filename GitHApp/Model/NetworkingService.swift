@@ -31,7 +31,7 @@ struct NetworkingService: NetworkingServiceProtocol {
                 }
                 completed(.success(resultsModel))
             case .failure(_):
-                completed(.failure(.invalidData))
+                completed(.failure(.invalidResponse))
             }
         }
 

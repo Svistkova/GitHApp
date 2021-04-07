@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class InfoCell: UITableViewCell {
 
@@ -16,7 +17,7 @@ final class InfoCell: UITableViewCell {
             repositoryTitle.text = cellData?.repoName
             repositoryURL.text = cellData?.repoURL
             guard let url = URL(string: cellData?.avatarURL ?? "") else { return }
-            logoImage.load(url: url)
+            logoImage.kf.setImage(with: url)
         }
     }
 
