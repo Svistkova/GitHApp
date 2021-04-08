@@ -7,36 +7,105 @@
 
 import Foundation
 import Alamofire
+import Moya
 
 protocol NetworkingServiceProtocol {
     func getResults(description: String, completed: @escaping (Result<[RepositoriesModel], ErrorMessage>) -> Void)
 }
 
+enum CompaniesServiceMoya {
+    case readProjects(name: String)
+}
+
+extension CompaniesServiceMoya: TargetType {
+    var baseURL: URL {
+        let url = URL(string: "https://api.github.com/orgs/")!
+        return url
+    }
+
+    var path: String {
+        switch self {
+        case .readProjects(let name):
+            return "\(name.replacingOccurrences(of: " ", with: ""))" + "/repos"
+        }
+    }
+
+    var method: Moya.Method {
+        switch self {
+        case .readProjects(_):
+            return .get
+        }
+    }
+
+    var sampleData: Data {
+        return Data()
+    }
+
+    var task: Task {
+        switch self {
+        case .readProjects(_):
+            return .requestPlain
+        }
+    }
+
+    var headers: [String : String]? {
+        return nil
+    }
+}
+
+
 struct NetworkingService: NetworkingServiceProtocol {
 
-    func getResults(description: String, completed: @escaping (Result<[RepositoriesModel], ErrorMessage>) -> Void) {
-        let urlString = "https://api.github.com/orgs/\(description.replacingOccurrences(of: " ", with: ""))" + "/repos"
+    let userProvider = MoyaProvider<CompaniesServiceMoya>()
 
-        // Networking with Alamofire
-        AF.request(urlString).responseDecodable(of: [RepositoriesData].self) { response in
-            switch response.result {
-            case .success(let results):
-                let resultsModel: [RepositoriesModel] = results.map { result in
-                    let resultModel = RepositoriesModel(
-                        repoName: result.name,
-                        repoURL: result.repoURL,
-                        avatarURL: result.owner.profilePicture
-                    )
-                    return resultModel
+    func getResults(description: String, completed: @escaping (Result<[RepositoriesModel], ErrorMessage>) -> Void) {
+
+        //MARK: -  Networking with Moya
+
+        userProvider.request(.readProjects(name: description)) { (result) in
+            switch result {
+            case .success(let response):
+                do {
+                    let decodedResults = try JSONDecoder().decode([RepositoriesData].self, from: response.data)
+                    let resultsModel: [RepositoriesModel] = decodedResults.map { result in
+                        let resultModel = RepositoriesModel(
+                            repoName: result.name,
+                            repoURL: result.repoURL,
+                            avatarURL: result.owner.profilePicture
+                        )
+                        return resultModel
+                    }
+                    completed(.success(resultsModel))
+                } catch {
+                    completed(.failure(.invalidData))
                 }
-                completed(.success(resultsModel))
             case .failure(_):
                 completed(.failure(.invalidResponse))
             }
         }
+        //MARK: - Networking with Alamofire
+//        let urlString = "https://api.github.com/orgs/\(description.replacingOccurrences(of: " ", with: ""))" + "/repos"
+//
+//        AF.request(urlString).responseDecodable(of: [RepositoriesData].self) { response in
+//            switch response.result {
+//            case .success(let results):
+//                let resultsModel: [RepositoriesModel] = results.map { result in
+//                    let resultModel = RepositoriesModel(
+//                        repoName: result.name,
+//                        repoURL: result.repoURL,
+//                        avatarURL: result.owner.profilePicture
+//                    )
+//                    return resultModel
+//                }
+//                completed(.success(resultsModel))
+//            case .failure(_):
+//                completed(.failure(.invalidResponse))
+//            }
+//        }
 
-        // networking with URLSession
+        //MARK: - networking with URLSession
 
+//        let urlString = "https://api.github.com/orgs/\(description.replacingOccurrences(of: " ", with: ""))" + "/repos"
 //        guard let url = URL(string: urlString) else { return }
 //        let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
 //            if let _ = error {
