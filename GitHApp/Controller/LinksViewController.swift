@@ -124,7 +124,6 @@ extension LinksViewController: UITableViewDelegate, UITableViewDataSource, UISea
                 self.networkingManager.getResults(description: companyName) { [weak self] result in
                     switch result {
                     case .success(let results):
-                        print(results)
                         self?.cells = results
 
                         DispatchQueue.main.async {

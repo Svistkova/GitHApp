@@ -60,20 +60,22 @@ final class InfoCell: UITableViewCell {
     private func setupConstraints() {
 
         logoImage.snp.makeConstraints { (make) in
-            make.top.leading.bottom.equalToSuperview().inset(10)
+            make.top.leading.equalToSuperview().inset(10)
+            make.bottom.lessThanOrEqualToSuperview().inset(10)
             make.width.height.equalTo(100)
         }
 
         repositoryTitle.snp.makeConstraints { (make) in
-            make.top.equalToSuperview().offset(10)
-            make.leading.equalTo(logoImage.snp.trailing).offset(10)
-            make.trailing.equalToSuperview().offset(-30)
+            make.top.equalToSuperview().inset(10)
+            make.leading.equalTo(logoImage.snp.trailing).offset(15)
+            make.trailing.equalToSuperview().offset(-35)
         }
 
         repositoryURL.snp.makeConstraints { (make) in
-            make.trailing.equalToSuperview().offset(-30)
-            make.leading.equalTo(logoImage.snp.trailing).offset(10)
+            make.trailing.equalToSuperview().offset(-35)
+            make.leading.equalTo(logoImage.snp.trailing).offset(15)
             make.top.equalTo(repositoryTitle.snp.bottom).offset(10)
+            make.bottom.equalToSuperview().inset(10)
         }
     }
 }
